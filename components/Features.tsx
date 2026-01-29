@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Camera, Utensils, Users, Smartphone, BarChart3, ChevronRight } from 'lucide-react';
-import { GlowingEffect } from "@/components/ui/glowing-effect";
-import { cn } from "@/lib/utils";
+import { GlowingEffect } from "./ui/glowing-effect";
+import { cn } from "../lib/utils";
 
 const Features: React.FC = () => {
   return (
