@@ -39,11 +39,17 @@ const StoryPage: React.FC<StoryPageProps> = ({ onNavigate }) => {
               <div className="w-full lg:w-5/12">
                 <div className="relative rounded-2xl overflow-hidden border border-brand-cyan/20 shadow-lg group">
                   <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/40 to-transparent z-10"></div>
-                  {/* USER INSTRUCTION: Save your red background image as 'arshad.png' in the public folder */}
                   <img 
                     src="/assets/story/founder-arshad.jpg" 
                     alt="Arshad - The Discipline Built Man" 
-                    className="w-full h-[600px] object-cover object-top transition-all duration-700 hover:scale-105"
+                    className="w-full h-[500px] md:h-[600px] object-cover object-center transition-all duration-700 hover:scale-105"
+                    loading="lazy"
+                    style={{
+                      objectPosition: '50% 20%' // Focus on upper portion of image
+                    }}
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=600&fit=crop&crop=face';
+                    }}
                   />
                   <div className="absolute bottom-6 left-6 z-20">
                     <div className="text-brand-cyan font-mono text-sm tracking-widest uppercase mb-1">Founder</div>
