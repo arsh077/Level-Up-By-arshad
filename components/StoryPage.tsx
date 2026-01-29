@@ -40,7 +40,7 @@ const StoryPage: React.FC<StoryPageProps> = ({ onNavigate }) => {
                 <div className="relative rounded-2xl overflow-hidden border border-brand-cyan/20 shadow-lg group">
                   <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/40 to-transparent z-10"></div>
                   <img 
-                    src="/assets/story/founder-arshad.jpg" 
+                    src="/assets/story/arshad-new.png" 
                     alt="Arshad - The Discipline Built Man" 
                     className="w-full h-[500px] md:h-[600px] object-cover object-center transition-all duration-700 hover:scale-105"
                     loading="lazy"
