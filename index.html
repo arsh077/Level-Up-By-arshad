@@ -11,9 +11,14 @@
     <script type="text/javascript">
       (function(){
         // Initialize EmailJS with your public key
-        // You need to get a public key from emailjs.com (it's free)
-        // For now, we initialize to prevent errors
-        emailjs.init("YOUR_PUBLIC_KEY_HERE");
+        // We wrap in try-catch to prevent app crash if this fails
+        try {
+          if (typeof emailjs !== 'undefined') {
+            emailjs.init("YOUR_PUBLIC_KEY_HERE");
+          }
+        } catch(e) {
+          console.warn("EmailJS failed to initialize:", e);
+        }
       })();
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -328,5 +333,6 @@
 </head>
   <body>
     <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
