@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LEVEL UP - Transform Your Life</title>
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+      (function(){
+        // Initialize EmailJS with your public key
+        // You need to get a public key from emailjs.com (it's free)
+        // For now, we initialize to prevent errors
+        emailjs.init("YOUR_PUBLIC_KEY_HERE");
+      })();
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                // Using CSS variables for theme switching
+                cyan: '#00BCD4',
+                orange: '#FF9800',
+                green: '#4CAF50',
+                red: '#F44336',
+                navy: 'var(--color-bg-primary)', // Dynamic
+                dark: 'var(--color-bg-card)',    // Dynamic
+                muted: '#1E293B',
+              },
+              // Text colors mapped to variables
+              white: 'var(--color-text-primary)',
+              gray: {
+                300: 'var(--color-text-secondary)',
+                400: 'var(--color-text-muted)',
+                500: 'var(--color-text-dim)',
+                800: 'var(--color-border)',
+                900: 'var(--color-border-dark)',
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              heading: ['Poppins', 'sans-serif'],
+              mono: ['IBM Plex Mono', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
+    <style type="text/tailwindcss">
+      @layer base {
+        :root {
+          /* Default to Light Mode Variables */
+          --color-bg-primary: #F8FAFC;  /* Light Gray/White */
+          --color-bg-card: #FFFFFF;     /* Pure White */
+          --color-text-primary: #0F172A; /* Dark Navy Text */
+          --color-text-secondary: #334155;
+          --color-text-muted: #64748B;
+          --color-text-dim: #94A3B8;
+          --color-border: #E2E8F0;
+          --color-border-dark: #CBD5E1;
+        }
+
+        /* Dark Mode Variables */
+        .dark {
+          --color-bg-primary: #0D1B2A;
+          --color-bg-card: #0A1622;
+          --color-text-primary: #FFFFFF;
+          --color-text-secondary: #CBD5E1;
+          --color-text-muted: #94A3B8;
+          --color-text-dim: #64748B;
+          --color-border: #1F2937;
+          --color-border-dark: #111827;
+        }
+
+        body {
+          background-color: var(--color-bg-primary);
+          color: var(--color-text-primary);
+          transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .gradient-text {
+          background: linear-gradient(to right, #00BCD4, #FF9800);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+          width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+          background: var(--color-bg-primary);
+        }
+        ::-webkit-scrollbar-thumb {
+          background: #00BCD4;
+          border-radius: 4px;
+        }
+
+        /* Gradient Button Properties */
+        @property --pos-x {
+          syntax: '<percentage>';
+          initial-value: 11.14%;
+          inherits: false;
+        }
+
+        @property --pos-y {
+          syntax: '<percentage>';
+          initial-value: 140%;
+          inherits: false;
+        }
+
+        @property --spread-x {
+          syntax: '<percentage>';
+          initial-value: 150%;
+          inherits: false;
+        }
+
+        @property --spread-y {
+          syntax: '<percentage>';
+          initial-value: 180.06%;
+          inherits: false;
+        }
+
+        @property --color-1 {
+          syntax: '<color>';
+          initial-value: #000;
+          inherits: false;
+        }
+
+        @property --color-2 {
+          syntax: '<color>';
+          initial-value: #08012c;
+          inherits: false;
+        }
+
+        @property --color-3 {
+          syntax: '<color>';
+          initial-value: #4e1e40;
+          inherits: false;
+        }
+
+        @property --color-4 {
+          syntax: '<color>';
+          initial-value: #70464e;
+          inherits: false;
+        }
+
+        @property --color-5 {
+          syntax: '<color>';
+          initial-value: #88394c;
+          inherits: false;
+        }
+
+        @property --border-angle {
+          syntax: '<angle>';
+          initial-value: 20deg;
+          inherits: true;
+        }
+
+        @property --border-color-1 {
+          syntax: '<color>';
+          initial-value: hsla(340, 75%, 60%, 0.2);
+          inherits: true;
+        }
+
+        @property --border-color-2 {
+          syntax: '<color>';
+          initial-value: hsla(340, 75%, 40%, 0.75);
+          inherits: true;
+        }
+
+        @property --stop-1 {
+          syntax: '<percentage>';
+          initial-value: 37.35%;
+          inherits: false;
+        }
+
+        @property --stop-2 {
+          syntax: '<percentage>';
+          initial-value: 61.36%;
+          inherits: false;
+        }
+
+        @property --stop-3 {
+          syntax: '<percentage>';
+          initial-value: 78.42%;
+          inherits: false;
+        }
+
+        @property --stop-4 {
+          syntax: '<percentage>';
+          initial-value: 89.52%;
+          inherits: false;
+        }
+
+        @property --stop-5 {
+          syntax: '<percentage>';
+          initial-value: 100%;
+          inherits: false;
+        }
+      }
+
+      @layer components {
+        .gradient-button {
+          @apply relative appearance-none cursor-pointer;
+          background: radial-gradient(
+            var(--spread-x) var(--spread-y) at var(--pos-x) var(--pos-y),
+            var(--color-1) var(--stop-1),
+            var(--color-2) var(--stop-2),
+            var(--color-3) var(--stop-3),
+            var(--color-4) var(--stop-4),
+            var(--color-5) var(--stop-5)
+          );
+          transition:
+            --pos-x 0.5s,
+            --pos-y 0.5s,
+            --spread-x 0.5s,
+            --spread-y 0.5s,
+            --color-1 0.5s,
+            --color-2 0.5s,
+            --color-3 0.5s,
+            --color-4 0.5s,
+            --color-5 0.5s,
+            --border-angle 0.5s,
+            --border-color-1 0.5s,
+            --border-color-2 0.5s,
+            --stop-1 0.5s,
+            --stop-2 0.5s,
+            --stop-3 0.5s,
+            --stop-4 0.5s,
+            --stop-5 0.5s;
+        }
+
+        .gradient-button::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          padding: 1px;
+          background: linear-gradient(
+            var(--border-angle),
+            var(--border-color-1),
+            var(--border-color-2)
+          );
+          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          mask-composite: exclude;
+          pointer-events: none;
+        }
+
+        .gradient-button:hover {
+          --pos-x: 0%;
+          --pos-y: 91.51%;
+          --spread-x: 120.24%;
+          --spread-y: 103.18%;
+          --color-1: #c96287;
+          --color-2: #c66c64;
+          --color-3: #cc7d23;
+          --color-4: #37140a;
+          --color-5: #000;
+          --border-angle: 190deg;
+          --border-color-1: hsla(340, 78%, 90%, 0.1);
+          --border-color-2: hsla(340, 75%, 90%, 0.6);
+          --stop-1: 0%;
+          --stop-2: 8.8%;
+          --stop-3: 21.44%;
+          --stop-4: 71.34%;
+          --stop-5: 85.76%;
+        }
+
+        .gradient-button-variant {
+          --color-1: #000022;
+          --color-2: #1f3f6d;
+          --color-3: #469396;
+          --color-4: #f1ffa5;
+          --border-angle: 200deg;
+          --border-color-1: hsla(320, 75%, 90%, 0.6);
+          --border-color-2: hsla(320, 50%, 90%, 0.15);
+        }
+
+        .gradient-button-variant:hover {
+          --pos-x: 0%;
+          --pos-y: 95.51%;
+          --spread-x: 110.24%;
+          --spread-y: 110.2%;
+          --color-1: #000020;
+          --color-2: #f1ffa5;
+          --color-3: #469396;
+          --color-4: #1f3f6d;
+          --color-5: #000;
+          --stop-1: 0%;
+          --stop-2: 10%;
+          --stop-3: 35.44%;
+          --stop-4: 71.34%;
+          --stop-5: 90.76%;
+          --border-angle: 210deg;
+          --border-color-1: hsla(320, 75%, 90%, 0.2);
+          --border-color-2: hsla(320, 50%, 90%, 0.75);
+        }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "recharts": "https://esm.sh/recharts@^3.7.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "motion/": "https://esm.sh/motion@^12.29.2/",
+    "clsx": "https://esm.sh/clsx@^2.1.1",
+    "tailwind-merge": "https://esm.sh/tailwind-merge@^3.4.0",
+    "@radix-ui/react-slot": "https://esm.sh/@radix-ui/react-slot@^1.2.4",
+    "three": "https://esm.sh/three@^0.182.0",
+    "class-variance-authority": "https://esm.sh/class-variance-authority@^0.7.1",
+    "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
+    "firebase/": "https://esm.sh/firebase@^12.8.0/",
+    "uuid": "https://esm.sh/uuid@^13.0.0"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
