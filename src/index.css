@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Default to Light Mode Variables */
+    --color-bg-primary: #F8FAFC;  /* Light Gray/White */
+    --color-bg-card: #FFFFFF;     /* Pure White */
+    --color-text-primary: #0F172A; /* Dark Navy Text */
+    --color-text-secondary: #334155;
+    --color-text-muted: #64748B;
+    --color-text-dim: #94A3B8;
+    --color-border: #E2E8F0;
+    --color-border-dark: #CBD5E1;
+  }
+
+  /* Dark Mode Variables */
+  .dark {
+    --color-bg-primary: #0D1B2A;
+    --color-bg-card: #0A1622;
+    --color-text-primary: #FFFFFF;
+    --color-text-secondary: #CBD5E1;
+    --color-text-muted: #94A3B8;
+    --color-text-dim: #64748B;
+    --color-border: #1F2937;
+    --color-border-dark: #111827;
+  }
+
+  body {
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .gradient-text {
+    background: linear-gradient(to right, #00BCD4, #FF9800);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-bg-primary);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #00BCD4;
+    border-radius: 4px;
+  }
+}
