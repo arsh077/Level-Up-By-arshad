@@ -8,20 +8,33 @@ const WAITLIST_KEY = 'levelup_waitlist';
 // --- USER PROFILE ---
 
 export const getUserProfile = (): UserProfile | null => {
-  const data = localStorage.getItem(USER_KEY);
-  return data ? JSON.parse(data) : null;
+  try {
+    const data = localStorage.getItem(USER_KEY);
+    return data ? JSON.parse(data) : null;
+  } catch (error) {
+    console.error("Failed to parse user profile", error);
+    return null;
+  }
 };
 
 export const saveUserProfile = (profile: UserProfile): void => {
-  localStorage.setItem(USER_KEY, JSON.stringify(profile));
-  // In a real app, this is where you await saveUserProfileToFireStore(profile.id, profile);
+  try {
+    localStorage.setItem(USER_KEY, JSON.stringify(profile));
+  } catch (error) {
+    console.error("Failed to save user profile", error);
+  }
 };
 
 // --- DAILY LOGS ---
 
 export const getDailyLogs = (): Record<string, DailyLog> => {
-  const data = localStorage.getItem(LOGS_KEY);
-  return data ? JSON.parse(data) : {};
+  try {
+    const data = localStorage.getItem(LOGS_KEY);
+    return data ? JSON.parse(data) : {};
+  } catch (error) {
+    console.error("Failed to parse daily logs", error);
+    return {};
+  }
 };
 
 export const getLogForDate = (date: string): DailyLog => {
@@ -41,10 +54,13 @@ export const getLogForDate = (date: string): DailyLog => {
 };
 
 export const saveLogForDate = (date: string, data: DailyLog): void => {
-  const logs = getDailyLogs();
-  logs[date] = data;
-  localStorage.setItem(LOGS_KEY, JSON.stringify(logs));
-  // In real app: save to Firestore collection "daily_logs"
+  try {
+    const logs = getDailyLogs();
+    logs[date] = data;
+    localStorage.setItem(LOGS_KEY, JSON.stringify(logs));
+  } catch (error) {
+    console.error("Failed to save log", error);
+  }
 };
 
 // --- WAITLIST ---
@@ -53,15 +69,25 @@ export const saveUser = async (entry: WaitlistEntry): Promise<boolean> => {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 800));
     
-    const currentList = getWaitlist();
-    currentList.push(entry);
-    localStorage.setItem(WAITLIST_KEY, JSON.stringify(currentList));
-    return true;
+    try {
+        const currentList = getWaitlist();
+        currentList.push(entry);
+        localStorage.setItem(WAITLIST_KEY, JSON.stringify(currentList));
+        return true;
+    } catch (error) {
+        console.error("Failed to save to waitlist", error);
+        return false;
+    }
 };
 
 export const getWaitlist = (): WaitlistEntry[] => {
-    const data = localStorage.getItem(WAITLIST_KEY);
-    return data ? JSON.parse(data) : [];
+    try {
+        const data = localStorage.getItem(WAITLIST_KEY);
+        return data ? JSON.parse(data) : [];
+    } catch (error) {
+        console.error("Failed to get waitlist", error);
+        return [];
+    }
 };
 
 export const clearWaitlist = (): void => {

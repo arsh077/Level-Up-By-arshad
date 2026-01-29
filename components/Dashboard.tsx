@@ -5,12 +5,51 @@ import { Camera, Plus, Edit2, Droplets, Footprints, Moon, CheckCircle } from 'lu
 import { CameraModule } from './CameraModule';
 import { PieChart, Pie, Cell } from 'recharts';
 
+// Define Wrapper first to ensure it's available
+const CameraModuleWrapper = ({ onCapture }: { onCapture: (data: any) => void }) => {
+    return (
+        <div className="bg-brand-navy p-4 rounded-xl">
+            <h2 className="text-white text-center mb-4">Scanning...</h2>
+            {/* CameraModule is safe to use here as it's imported */}
+            <CameraModule />
+            <button 
+                onClick={() => onCapture({
+                    foodName: "AI Detected Meal",
+                    calories: 450,
+                    macros: { protein: 25, carbs: 40, fats: 15 }
+                })}
+                className="w-full mt-4 bg-brand-cyan text-black py-3 rounded-xl font-bold"
+            >
+                Simulate "Add AI Result"
+            </button>
+            <p className="text-xs text-center text-gray-500 mt-2">
+                (Simulation mode for demo)
+            </p>
+        </div>
+    )
+}
+
 interface DashboardProps {
   user: UserProfile;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ user }) => {
-  const [todayLog, setTodayLog] = useState<DailyLog>(getLogForDate(new Date().toISOString().split('T')[0]));
+  // Safety check for user
+  if (!user) return <div className="p-10 text-white text-center">Loading user profile...</div>;
+
+  const [todayLog, setTodayLog] = useState<DailyLog>(() => {
+      try {
+          return getLogForDate(new Date().toISOString().split('T')[0]);
+      } catch (e) {
+          console.error("Error loading log", e);
+          return {
+            date: new Date().toISOString().split('T')[0],
+            meals: { breakfast: [], lunch: [], dinner: [], snacks: [] },
+            water: 0, steps: 0, sleep: 0, mood: null, notes: ''
+          };
+      }
+  });
+  
   const [showCamera, setShowCamera] = useState<{show: boolean, meal: keyof DailyLog['meals'] | null}>({ show: false, meal: null });
 
   const dateKey = new Date().toISOString().split('T')[0];
@@ -21,25 +60,39 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
   };
 
   const handleMealAdd = (mealType: keyof DailyLog['meals'], items: MealItem[]) => {
-      const updatedLog = { ...todayLog };
+      // Deep copy to avoid reference issues
+      const updatedLog = JSON.parse(JSON.stringify(todayLog));
+      if (!updatedLog.meals) updatedLog.meals = {};
+      if (!updatedLog.meals[mealType]) updatedLog.meals[mealType] = [];
+      
       updatedLog.meals[mealType] = [...updatedLog.meals[mealType], ...items];
       updateLog(updatedLog);
       setShowCamera({ show: false, meal: null });
   };
 
-  // Calculate Daily Totals
+  // Safe meal access with defaults
+  const meals = todayLog.meals || { breakfast: [], lunch: [], dinner: [], snacks: [] };
+  
+  // Calculate Daily Totals with safe access
   const allMeals: MealItem[] = [
-    ...todayLog.meals.breakfast,
-    ...todayLog.meals.lunch,
-    ...todayLog.meals.dinner,
-    ...todayLog.meals.snacks
+    ...(meals.breakfast || []),
+    ...(meals.lunch || []),
+    ...(meals.dinner || []),
+    ...(meals.snacks || [])
   ];
-  const totalCalories = allMeals.reduce((sum: number, item: MealItem) => sum + (Number(item.calories) || 0), 0);
-  const totalProtein = allMeals.reduce((sum: number, item: MealItem) => sum + (Number(item.protein) || 0), 0);
-  const totalCarbs = allMeals.reduce((sum: number, item: MealItem) => sum + (Number(item.carbs) || 0), 0);
-  const totalFats = allMeals.reduce((sum: number, item: MealItem) => sum + (Number(item.fats) || 0), 0);
 
-  const remaining = Math.max(0, (user.targetCalories || 0) - totalCalories);
+  const safeNumber = (val: any) => {
+      const n = Number(val);
+      return isNaN(n) ? 0 : n;
+  }
+
+  const totalCalories = allMeals.reduce((sum, item) => sum + safeNumber(item.calories), 0);
+  const totalProtein = allMeals.reduce((sum, item) => sum + safeNumber(item.protein), 0);
+  const totalCarbs = allMeals.reduce((sum, item) => sum + safeNumber(item.carbs), 0);
+  const totalFats = allMeals.reduce((sum, item) => sum + safeNumber(item.fats), 0);
+
+  const targetCalories = safeNumber(user.targetCalories || 2000);
+  const remaining = Math.max(0, targetCalories - totalCalories);
   const progressColor = remaining > 0 ? '#00BCD4' : '#F44336';
 
   const chartData = [
@@ -53,11 +106,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
       <header className="px-6 pt-6 pb-2 flex justify-between items-end">
         <div>
             <div className="text-gray-400 text-sm">Good morning,</div>
-            <div className="text-2xl font-bold text-white">{user.name.split(' ')[0]} 👋</div>
+            <div className="text-2xl font-bold text-white">{user.name ? user.name.split(' ')[0] : 'User'} 👋</div>
         </div>
         <div className="text-right">
             <div className="text-xs text-brand-cyan font-bold bg-brand-cyan/10 px-2 py-1 rounded-full inline-block mb-1">Day 1</div>
-            <div className="text-xs text-gray-500">Goal: {user.targetCalories} kcal</div>
+            <div className="text-xs text-gray-500">Goal: {targetCalories} kcal</div>
         </div>
       </header>
 
@@ -66,7 +119,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         <div className="relative w-48 h-48">
             <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
                 <div className="text-3xl font-heading font-bold text-white">{totalCalories}</div>
-                <div className="text-xs text-gray-400">of {user.targetCalories} kcal</div>
+                <div className="text-xs text-gray-400">of {targetCalories} kcal</div>
                 <div className="text-xs text-brand-green mt-1">{remaining} left</div>
             </div>
             <PieChart width={192} height={192}>
@@ -94,21 +147,21 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
           <div className="grid grid-cols-3 gap-3">
               <div className="bg-brand-dark border border-gray-800 p-3 rounded-xl text-center">
                   <div className="text-xs text-gray-400 mb-1">Protein</div>
-                  <div className="font-bold text-brand-cyan">{totalProtein}/{user.macroTargets?.protein}g</div>
+                  <div className="font-bold text-brand-cyan">{totalProtein}/{user.macroTargets?.protein || 0}g</div>
                   <div className="w-full bg-gray-800 h-1 mt-2 rounded-full overflow-hidden">
                       <div className="h-full bg-brand-cyan" style={{ width: `${Math.min(100, (totalProtein / (user.macroTargets?.protein || 1)) * 100)}%` }}></div>
                   </div>
               </div>
               <div className="bg-brand-dark border border-gray-800 p-3 rounded-xl text-center">
                   <div className="text-xs text-gray-400 mb-1">Carbs</div>
-                  <div className="font-bold text-brand-orange">{totalCarbs}/{user.macroTargets?.carbs}g</div>
+                  <div className="font-bold text-brand-orange">{totalCarbs}/{user.macroTargets?.carbs || 0}g</div>
                   <div className="w-full bg-gray-800 h-1 mt-2 rounded-full overflow-hidden">
                       <div className="h-full bg-brand-orange" style={{ width: `${Math.min(100, (totalCarbs / (user.macroTargets?.carbs || 1)) * 100)}%` }}></div>
                   </div>
               </div>
               <div className="bg-brand-dark border border-gray-800 p-3 rounded-xl text-center">
                   <div className="text-xs text-gray-400 mb-1">Fats</div>
-                  <div className="font-bold text-brand-green">{totalFats}/{user.macroTargets?.fats}g</div>
+                  <div className="font-bold text-brand-green">{totalFats}/{user.macroTargets?.fats || 0}g</div>
                   <div className="w-full bg-gray-800 h-1 mt-2 rounded-full overflow-hidden">
                       <div className="h-full bg-brand-green" style={{ width: `${Math.min(100, (totalFats / (user.macroTargets?.fats || 1)) * 100)}%` }}></div>
                   </div>
@@ -130,13 +183,13 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                           <h3 className="font-bold text-white capitalize">{meal}</h3>
                       </div>
                       <div className="text-sm font-mono text-gray-400">
-                          {todayLog.meals[meal].reduce((sum: number, i: MealItem) => sum + (Number(i.calories) || 0), 0)} kcal
+                          {((meals[meal] || []).reduce((sum: number, i: MealItem) => sum + safeNumber(i.calories), 0))} kcal
                       </div>
                   </div>
 
-                  {todayLog.meals[meal].length > 0 ? (
+                  {(meals[meal] || []).length > 0 ? (
                       <div className="space-y-2 mb-4">
-                          {todayLog.meals[meal].map((item, idx) => (
+                          {(meals[meal] || []).map((item: MealItem, idx: number) => (
                               <div key={idx} className="flex justify-between items-center bg-brand-dark/50 p-3 rounded-lg text-sm">
                                   <span className="text-gray-200">{item.name}</span>
                                   <span className="text-brand-cyan font-bold">{item.calories}</span>
@@ -234,7 +287,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
             ))}
         </div>
         <textarea 
-            value={todayLog.notes}
+            value={todayLog.notes || ''}
             onChange={(e) => updateLog({ ...todayLog, notes: e.target.value })}
             placeholder="Any notes about today? (Cheat meal, travel, stress...)"
             className="w-full bg-brand-navy border border-gray-800 rounded-xl p-4 text-white text-sm focus:border-brand-cyan outline-none resize-none h-24"
@@ -248,7 +301,6 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                   <button onClick={() => setShowCamera({ show: false, meal: null })} className="p-2 bg-black/50 rounded-full text-white">X</button>
               </div>
               <div className="h-full flex flex-col justify-center p-4">
-                  {/* Reuse existing logic but modify to return data instead of just showing it */}
                   <CameraModuleWrapper 
                     onCapture={(food) => {
                         const item: MealItem = {
@@ -270,43 +322,5 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
     </div>
   );
 };
-
-// Wrapper to adapt the existing CameraModule to pass data back
-const CameraModuleWrapper = ({ onCapture }: { onCapture: (data: any) => void }) => {
-    // We render the existing CameraModule but need to intercept its state.
-    // Since CameraModule manages its own state, for this "Mock" implementation, 
-    // I'll create a simplified version or we assume CameraModule has an onSave prop.
-    // *Modification*: I will assume I modified CameraModule.tsx to accept onSave. 
-    // If not, I'll render a simplified version here.
-    
-    return (
-        <div className="bg-brand-navy p-4 rounded-xl">
-            <h2 className="text-white text-center mb-4">Scanning...</h2>
-            <CameraModule />
-            {/* INSTRUCTION: In a real app, CameraModule would emit the 'result' object to the parent.
-                For now, users see the result in CameraModule. 
-                Use "Manual" add for data persistence in this specific demo if CameraModule isn't fully refactored.
-            */}
-            <div className="mt-4 text-center text-xs text-gray-500">
-                (Note: To fully link Camera scan to Dashboard DB, CameraModule.tsx needs an 'onSave' prop refactor. 
-                Currently it runs in standalone mode.)
-            </div>
-            {/* 
-               For the sake of the demo requirements, I will simulate a "Save" button 
-               that would appear after scan in the real app.
-            */}
-            <button 
-                onClick={() => onCapture({
-                    foodName: "AI Detected Meal",
-                    calories: 450,
-                    macros: { protein: 25, carbs: 40, fats: 15 }
-                })}
-                className="w-full mt-4 bg-brand-cyan text-black py-3 rounded-xl font-bold"
-            >
-                Simulate "Add AI Result"
-            </button>
-        </div>
-    )
-}
 
 export default Dashboard;
